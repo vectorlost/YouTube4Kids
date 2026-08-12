@@ -1,6 +1,8 @@
 package io.github.degipe.youtubewhitelist.navigation
 
 import android.app.Activity
+import android.app.ActivityManager
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
@@ -148,12 +150,21 @@ fun AppNavigation(
                     factory.create(route.profileId)
                 }
 
-            // Start screen pinning when entering kid mode
+            // Start screen pinning when entering kid mode.
+            // Guard: only pin if not already pinned, otherwise Fire OS re-displays
+            // its "screen is pinned" confirmation dialog on every return to this screen.
             LaunchedEffect(Unit) {
                 try {
-                    (context as? Activity)?.startLockTask()
+                    val activity = context as? Activity
+                    val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE)
+                        as? ActivityManager
+                    val lockState = activityManager?.lockTaskModeState
+                        ?: ActivityManager.LOCK_TASK_MODE_NONE
+                    if (activity != null && lockState == ActivityManager.LOCK_TASK_MODE_NONE) {
+                        activity.startLockTask()
+                    }
                 } catch (_: Exception) {
-                    // Screen pinning not available or already active
+                    // Screen pinning not available on this device
                 }
             }
 

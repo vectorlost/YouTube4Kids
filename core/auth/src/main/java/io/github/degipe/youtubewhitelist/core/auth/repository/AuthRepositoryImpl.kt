@@ -66,6 +66,23 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * Connexion locale : crée (ou réutilise) un compte parent sans Google.
+     * Aucun jeton OAuth n'est nécessaire — les appels YouTube utilisent la clé API.
+     */
+    override suspend fun signInLocally() = withContext(ioDispatcher) {
+        val existingAccount = parentAccountDao.getParentAccountOnce()
+        val account = existingAccount ?: ParentAccountEntity(
+            id = UUID.randomUUID().toString(),
+            googleAccountId = LOCAL_ACCOUNT_ID,
+            email = LOCAL_ACCOUNT_EMAIL,
+            pinHash = "",
+            createdAt = System.currentTimeMillis()
+        ).also { parentAccountDao.insert(it) }
+
+        _authState.value = AuthState.Authenticated(account.toDomain())
+    }
+
     override suspend fun signOut() = withContext(ioDispatcher) {
         tokenManager.clearTokens()
         googleSignInManager.signOut()
@@ -84,5 +101,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     companion object {
         private const val TOKEN_EXPIRY_MS = 3600_000L // 1 hour
+        private const val LOCAL_ACCOUNT_ID = "local"
+        private const val LOCAL_ACCOUNT_EMAIL = "parent@local"
     }
 }

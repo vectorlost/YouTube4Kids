@@ -26,11 +26,13 @@ class SignInViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<SignInUiState>(SignInUiState.Idle)
     val uiState: StateFlow<SignInUiState> = _uiState.asStateFlow()
 
+    @Suppress("UNUSED_PARAMETER")
     fun signIn(activityContext: Context) {
         viewModelScope.launch {
             _uiState.value = SignInUiState.Loading
             try {
-                authRepository.signIn(activityContext)
+                // Connexion locale : pas de compte Google requis.
+                authRepository.signInLocally()
                 _uiState.value = SignInUiState.Success
             } catch (e: Exception) {
                 _uiState.value = SignInUiState.Error(e.message ?: "Unknown error")

@@ -6,9 +6,9 @@
     <string name="cancel">Cancel</string>
 
     <!-- Sign In -->
-   <string name="sign_in_title">Welcome to YouTubeWhitelist</string>
-    <string name="sign_in_subtitle">Sign in with your Google account to get started</string>
-    <string name="sign_in_button">Sign in with Google</string>
+   <string name="sign_in_title">Bienvenue</string>
+<string name="sign_in_subtitle">Aucun compte requis. Tout reste sur cette tablette.</string>
+<string name="sign_in_button">Commencer</string>
 
     <!-- PIN Setup -->
     <string name="pin_setup_title">Set Parent PIN</string>

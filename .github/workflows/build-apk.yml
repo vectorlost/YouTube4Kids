@@ -1,0 +1,43 @@
+name: Build APK
+
+# Compile l'APK dans le cloud GitHub — rien à installer sur ton PC.
+# Lancement manuel : onglet Actions → "Build APK" → "Run workflow"
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Préparer le SDK Android
+        uses: android-actions/setup-android@v3
+
+      - name: Injecter la clé YouTube API
+        run: |
+          echo "YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" > local.properties
+
+      - name: Rendre gradlew exécutable
+        run: chmod +x ./gradlew
+
+      - name: Compiler l'APK (debug)
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Publier l'APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: YouTubeWhitelist-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
